@@ -45,7 +45,7 @@ func interpolated(obj: Dictionary, t: float) -> Dictionary:
         var b: Dictionary = ordered[i + 1]
         var ta := float(a["time"])
         var tb := float(b["time"])
-        if t >= ta and t <= tb:
+        if t >= ta and t < tb:
             var fraction := interpolation_weight(clampf((t - ta) / maxf(tb - ta, 0.00001), 0.0, 1.0), str(obj.get("easing", "Smooth")))
             var result := {}
             for field in ["x", "y", "rotation", "scale", "opacity"]:

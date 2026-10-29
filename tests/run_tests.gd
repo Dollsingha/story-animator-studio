@@ -6,6 +6,7 @@ var failures := 0
 var editor: Control
 
 func _initialize() -> void:
+    create_timer(30.0).timeout.connect(func(): push_error("Core suite timed out"); quit(1))
     call_deferred("run")
 
 func check(condition: bool, label: String) -> void:

@@ -1,0 +1,59 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] savepack | Started Packing (102 steps)
+[   1% ] savepack | Storing File: res://.godot/imported/boat.png-d12d8ca6c2889003390835fc234212e4.ctex
+[   1% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/boat.png.import
+[   5% ] savepack | Storing File: res://.godot/imported/car_body.png-41521cdb00f934026039ac9bc00ada65.ctex
+[   5% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/car_body.png.import
+[  10% ] savepack | Storing File: res://.godot/imported/passenger_1.png-051dd53113c04b2ce2ee2e03b8d2aaf7.ctex
+[  10% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/passenger_1.png.import
+[  15% ] savepack | Storing File: res://.godot/imported/passenger_2.png-dad958fc95032f54c0f6aba9a54a6fda.ctex
+[  15% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/passenger_2.png.import
+[  20% ] savepack | Storing File: res://.godot/imported/passenger_3.png-5f8f8f027f02168f4f3a2bff738c9588.ctex
+[  20% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/passenger_3.png.import
+[  24% ] savepack | Storing File: res://.godot/imported/passenger_4.png-d39bc5810fc9c46a3c79600732f1b97e.ctex
+[  24% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/passenger_4.png.import
+[  29% ] savepack | Storing File: res://.godot/imported/village.png-52f8b7c0167dbe11abcbdb52cd511b0c.ctex
+[  29% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/village.png.import
+[  33% ] savepack | Storing File: res://.godot/imported/wheel.png-cb824b0ce5770998b85beeac2257763b.ctex
+[  33% ] savepack | Storing File: res://examples/Offline_Smart_Objects_assets/wheel.png.import
+[  38% ] savepack | Storing File: res://.godot/imported/head.png-3cd96c70c6a0d5b2651d56075efcf228.ctex
+[  38% ] savepack | Storing File: res://examples/Puppet_Demo_assets/head.png.import
+[  42% ] savepack | Storing File: res://.godot/imported/left_arm.png-778b5a30eb4a1fd6b3c02cabdc816178.ctex
+[  42% ] savepack | Storing File: res://examples/Puppet_Demo_assets/left_arm.png.import
+[  47% ] savepack | Storing File: res://.godot/imported/left_leg.png-d601470b28a017393ecf71db10bf7d7c.ctex
+[  47% ] savepack | Storing File: res://examples/Puppet_Demo_assets/left_leg.png.import
+[  52% ] savepack | Storing File: res://.godot/imported/right_arm.png-bc863ef3bf2b1c03061329e9cc65d3ef.ctex
+[  52% ] savepack | Storing File: res://examples/Puppet_Demo_assets/right_arm.png.import
+[  57% ] savepack | Storing File: res://.godot/imported/right_leg.png-87b4002a9f305abb7d8114b6d5401654.ctex
+[  57% ] savepack | Storing File: res://examples/Puppet_Demo_assets/right_leg.png.import
+[  61% ] savepack | Storing File: res://.godot/imported/torso.png-a1f686f8e4dcdb9cfed8e12381de0cf9.ctex
+[  61% ] savepack | Storing File: res://examples/Puppet_Demo_assets/torso.png.import
+[  66% ] savepack | Storing File: res://examples/Offline_Smart_Objects.json
+[  70% ] savepack | Storing File: res://examples/Puppet_Demo.json
+[  75% ] savepack | Storing File: res://.godot/imported/Village_Background.png-ed192d6f1e50b2a11b9bbbb2767777ab.ctex
+[  75% ] savepack | Storing File: res://examples/Village_Background.png.import
+[  79% ] savepack | Storing File: res://scripts/editor.gdc
+[  84% ] savepack | Storing File: res://scripts/project_storage.gdc
+[  89% ] savepack | Storing File: res://scripts/stage.gdc
+[  94% ] savepack | Storing File: res://.godot/exported/133200997/export-3070c538c03ee49b7677ff960a3f5195-main.scn
+[  94% ] savepack | Storing File: res://scripts/editor.gd.remap
+[  94% ] savepack | Storing File: res://scripts/project_storage.gd.remap
+[  94% ] savepack | Storing File: res://scripts/stage.gd.remap
+[  94% ] savepack | Storing File: res://main.tscn.remap
+[  94% ] savepack | Storing File: res://.godot/global_script_class_cache.cfg
+[  94% ] savepack | Storing File: res://.godot/uid_cache.bin
+[  94% ] savepack | Storing File: res://project.binary
+[ DONE ] savepack
+

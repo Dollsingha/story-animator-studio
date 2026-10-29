@@ -24,9 +24,9 @@ func stage_rect() -> Rect2:
 
 func to_stage(point: Vector2) -> Vector2:
     var r := stage_rect()
-    return (point - r.position) * STAGE_SIZE / r.size
+    return (point - r.position) * STAGE_SIZE / r.size.max(Vector2.ONE)
 
-func ease(t: float, mode: String) -> float:
+func interpolation_weight(t: float, mode: String) -> float:
     match mode:
         "Linear": return t
         "Hold": return 0.0
@@ -46,7 +46,7 @@ func interpolated(obj: Dictionary, t: float) -> Dictionary:
         var ta := float(a["time"])
         var tb := float(b["time"])
         if t >= ta and t <= tb:
-            var fraction := ease(clampf((t - ta) / maxf(tb - ta, 0.00001), 0.0, 1.0), str(obj.get("easing", "Smooth")))
+            var fraction := interpolation_weight(clampf((t - ta) / maxf(tb - ta, 0.00001), 0.0, 1.0), str(obj.get("easing", "Smooth")))
             var result := {}
             for field in ["x", "y", "rotation", "scale", "opacity"]:
                 result[field] = lerpf(float(a.get(field, base[field])), float(b.get(field, base[field])), fraction)
@@ -71,16 +71,22 @@ func world_pose(index: int, t: float, visited: Array = []) -> Dictionary:
     var world_pos := parent_pos + local_pos.rotated(deg_to_rad(float(ancestor["rotation"]))) * float(ancestor["scale"])
     return {"x": world_pos.x, "y": world_pos.y, "rotation": float(ancestor["rotation"]) + float(local["rotation"]), "scale": float(ancestor["scale"]) * float(local["scale"]), "opacity": float(ancestor["opacity"]) * float(local["opacity"])}
 
-func to_local_position(index: int, world: Vector2) -> Vector2:
+func to_local_position(index: int, world: Vector2, at_time: float = -1.0) -> Vector2:
     var parent := int(objects[index].get("parent", -1))
     if parent < 0 or parent >= objects.size(): return world
-    var ancestor := world_pose(parent, time_seconds)
+    var ancestor := world_pose(parent, time_seconds if at_time < 0.0 else at_time)
     var offset := world - Vector2(float(ancestor["x"]), float(ancestor["y"]))
     return offset.rotated(-deg_to_rad(float(ancestor["rotation"]))) / maxf(float(ancestor["scale"]), 0.0001)
 
 func get_texture(path: String) -> Texture2D:
     if path.is_empty(): return null
     if texture_cache.has(path): return texture_cache[path]
+    if path.begins_with("res://"):
+        if ResourceLoader.exists(path):
+            var resource: Resource = load(path)
+            if resource is Texture2D:
+                texture_cache[path] = resource
+                return resource
     if not FileAccess.file_exists(path): return null
     var img := Image.new()
     if img.load(path) != OK: return null

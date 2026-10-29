@@ -11,10 +11,10 @@
 
 ## Limitations
 - Wheel rotation is authored as sample keyframes, not computed from travel distance.
-- The current stage renderer uses fixed drawing order: background, boat, car passengers, car shell, wheels.
+- The stage draws scenery first, then objects in the scene list order; layering controls reorder them.
 - No automatic segmentation of user-supplied flat images.
-- No path editor, smart-seat placement UI, multi-view character wizard, or MP4 export in this release.
-- Godot runtime not available in the build environment; open and run in Godot 4 on Windows to validate.
+- Manual straight-segment route authoring is implemented. No curved route editor, smart-seat placement UI, multi-view character wizard, or MP4 export is included.
+- Runtime verified in Godot 4.7.2 on Windows; see STABILIZATION_REPORT.md for evidence and limits.
 
 ## Next implementation targets
 1. Reusable path component with cubic Bezier interpolation and optional orientation.

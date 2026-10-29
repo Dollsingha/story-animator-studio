@@ -1,8 +1,8 @@
 extends Control
 
 const StageScript = preload("res://scripts/stage.gd")
-const PROJECT_FORMAT := "story-animator-v2"
-var stage: Control
+const ProjectStorage = preload("res://scripts/project_storage.gd")
+var stage: StageScript
 var objects: Array = []
 var selected := -1
 var duration := 12.0
@@ -50,14 +50,14 @@ func _ready() -> void:
     _set_status("Import artwork or add a shape. Select an object, move the playhead, then record a pose.")
 
 func _apply_theme() -> void:
-    var theme := Theme.new()
-    theme.set_color("font_color", "Label", Color("#dbe6f1"))
-    theme.set_color("font_color", "Button", Color("#e5edf7"))
-    theme.set_color("font_color", "CheckButton", Color("#e5edf7"))
-    theme.set_color("font_color", "LineEdit", Color("#e5edf7"))
-    theme.set_color("font_color", "SpinBox", Color("#e5edf7"))
-    theme.set_color("font_color", "OptionButton", Color("#e5edf7"))
-    self.theme = theme
+    var editor_theme := Theme.new()
+    editor_theme.set_color("font_color", "Label", Color("#dbe6f1"))
+    editor_theme.set_color("font_color", "Button", Color("#e5edf7"))
+    editor_theme.set_color("font_color", "CheckButton", Color("#e5edf7"))
+    editor_theme.set_color("font_color", "LineEdit", Color("#e5edf7"))
+    editor_theme.set_color("font_color", "SpinBox", Color("#e5edf7"))
+    editor_theme.set_color("font_color", "OptionButton", Color("#e5edf7"))
+    self.theme = editor_theme
     var bg := ColorRect.new()
     bg.color = Color("#171d28")
     bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -79,8 +79,11 @@ func _button(parent: Node, caption: String, callback: Callable, tooltip: String 
     return b
 
 func _build_header(root: VBoxContainer) -> void:
+    var header_scroll := ScrollContainer.new()
+    header_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    root.add_child(header_scroll)
     var header := HBoxContainer.new()
-    root.add_child(header)
+    header_scroll.add_child(header)
     var brand := _label(header, "  STORY ANIMATOR STUDIO  |  P1 Rebuilt  ")
     brand.add_theme_color_override("font_color", Color("#78d6e6"))
     _button(header, "Import", _import_image, "Import PNG/JPG/WebP image")
@@ -125,8 +128,7 @@ func _build_workspace(root: VBoxContainer) -> void:
     grid_toggle.button_pressed = true
     grid_toggle.toggled.connect(func(v): stage.show_grid = v; stage.queue_redraw())
     canvas_header.add_child(grid_toggle)
-    stage = Control.new()
-    stage.set_script(StageScript)
+    stage = StageScript.new()
     stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
     stage.custom_minimum_size = Vector2(300, 230)
@@ -136,9 +138,13 @@ func _build_workspace(root: VBoxContainer) -> void:
     stage.path_point_added.connect(_path_point_added)
     stage.object_moved.connect(_on_moved)
     stage.drag_finished.connect(func(): drag_transaction = false; _refresh_markers())
+    var inspector_scroll := ScrollContainer.new()
+    inspector_scroll.custom_minimum_size.x = 220
+    inspector_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    middle.add_child(inspector_scroll)
     var right := VBoxContainer.new()
-    right.custom_minimum_size.x = 220
-    middle.add_child(right)
+    right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    inspector_scroll.add_child(right)
     _label(right, "  INSPECTOR")
     _label(right, "Name")
     name_input = LineEdit.new()
@@ -254,6 +260,8 @@ func _restore(snapshot: Dictionary) -> void:
     stage.background_path = background_path
     selected = int(snapshot["selected"])
     duration = float(snapshot["duration"])
+    _cancel_interaction()
+    current_time = minf(current_time, duration)
     refreshing = true
     duration_input.value = duration
     timeline.max_value = duration
@@ -274,7 +282,7 @@ func _redo() -> void:
     _set_status("Redo")
 
 func _load_offline_demo() -> void:
-    _read_project("res://examples/Offline_Smart_Objects.json")
+    if not _read_project("res://examples/Offline_Smart_Objects.json"): return
     _set_status("Offline demo loaded: press Play; inspect car and boat parent-child attachments")
 
 func _import_image() -> void: import_dialog.popup_centered_ratio(0.75)
@@ -320,11 +328,17 @@ func _finish_path() -> void:
         lengths.append(float(lengths[-1]) + a.distance_to(b))
     var total: float = maxf(float(lengths[-1]), 0.001)
     var span: float = minf(4.0, duration - current_time)
+    if span <= 0.0:
+        stage.path_points = []
+        path_points.clear()
+        stage.queue_redraw()
+        _set_status("Move the playhead before the end to create a route")
+        return
     for i in range(path_points.size()):
         var t: float = current_time + span * float(lengths[i]) / total
         var p: Dictionary = stage.interpolated(obj, t)
         var world := Vector2(float(path_points[i][0]), float(path_points[i][1]))
-        var local := stage.to_local_position(selected, world)
+        var local := stage.to_local_position(selected, world, t)
         p["x"] = local.x
         p["y"] = local.y
         p["time"] = t
@@ -336,7 +350,9 @@ func _finish_path() -> void:
     _sync()
     _set_status("Offline route applied as %d keyframes. Play to preview." % lengths.size())
 func _save_project() -> void:
-    if project_path.is_empty(): save_dialog.popup_centered_ratio(0.75)
+    if project_path.is_empty() or project_path.begins_with("res://"):
+        save_dialog.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+        save_dialog.popup_centered_ratio(0.75)
     else: _write_project(project_path)
 func _open_project() -> void: open_dialog.popup_centered_ratio(0.75)
 
@@ -376,7 +392,9 @@ func _delete_object() -> void:
         if p == selected: obj["parent"] = -1
         elif p > selected: obj["parent"] = p - 1
     selected = -1
+    _cancel_interaction()
     _sync()
+    _select(-1)
     _set_status("Object deleted")
 
 func _reorder(direction: int) -> void:
@@ -459,7 +477,8 @@ func _rename(value: String) -> void:
 
 func _change_parent(option: int) -> void:
     if refreshing or selected < 0: return
-    var new_parent := parent_input.get_item_id(option)
+    var new_parent := -1 if option == 0 else parent_input.get_item_id(option)
+    if new_parent == int(objects[selected].get("parent", -1)): return
     if new_parent == selected: return
     var p := new_parent
     var visited: Array = []
@@ -471,24 +490,40 @@ func _change_parent(option: int) -> void:
         visited.append(p)
         p = int(objects[p].get("parent", -1))
     _checkpoint()
-    var world: Dictionary = stage.world_pose(selected, current_time)
     var obj: Dictionary = objects[selected]
+    var times: Array = []
+    for key in obj["keys"]:
+        if not times.has(float(key["time"])): times.append(float(key["time"]))
+    if not times.is_empty() and not times.has(current_time): times.append(current_time)
+    var world: Dictionary = stage.world_pose(selected, current_time)
+    var samples: Array = []
+    for t in times:
+        samples.append(stage.world_pose(selected, float(t)))
     obj["parent"] = new_parent
-    var local_pos := stage.to_local_position(selected, Vector2(float(world["x"]), float(world["y"])))
-    var parent_angle := 0.0
-    var parent_scale := 1.0
-    if new_parent >= 0:
-        var ancestor := stage.world_pose(new_parent, current_time)
-        parent_angle = float(ancestor["rotation"])
-        parent_scale = float(ancestor["scale"])
-    obj["x"] = local_pos.x
-    obj["y"] = local_pos.y
-    obj["rotation"] = float(world["rotation"]) - parent_angle
-    obj["scale"] = float(world["scale"]) / maxf(parent_scale, 0.0001)
-    obj["keys"] = []
+    var base := _relative_pose(selected, world, current_time)
+    for field in base: obj[field] = base[field]
+    var rebased: Array = []
+    for i in range(times.size()):
+        var pose := _relative_pose(selected, samples[i], float(times[i]))
+        pose["time"] = times[i]
+        rebased.append(pose)
+    obj["keys"] = rebased
     _sync()
     _select(selected)
-    _set_status("Attached object. Existing animation keys were cleared to preserve its current pose.")
+    _set_status("Attachment updated; existing keyframe world poses preserved.")
+
+func _relative_pose(index: int, world: Dictionary, t: float) -> Dictionary:
+    var position := stage.to_local_position(index, Vector2(float(world["x"]), float(world["y"])), t)
+    var result: Dictionary = world.duplicate()
+    result["x"] = position.x
+    result["y"] = position.y
+    var parent := int(objects[index].get("parent", -1))
+    if parent >= 0:
+        var ancestor: Dictionary = stage.world_pose(parent, t)
+        result["rotation"] = float(world["rotation"]) - float(ancestor["rotation"])
+        result["scale"] = float(world["scale"]) / maxf(float(ancestor["scale"]), 0.0001)
+        result["opacity"] = float(world["opacity"]) / maxf(float(ancestor["opacity"]), 0.0001)
+    return result
 
 func _update_pose(index: int, changes: Dictionary, record_history: bool = true) -> void:
     if index < 0 or index >= objects.size(): return
@@ -621,6 +656,7 @@ func _process(delta: float) -> void:
 
 func _new_project() -> void:
     _checkpoint()
+    _cancel_interaction()
     objects.clear()
     background_path = ""
     stage.background_path = ""
@@ -628,94 +664,52 @@ func _new_project() -> void:
     project_path = ""
     playing = false
     timeline.value = 0
+    _seek(0.0)
     _sync()
+    _select(-1)
     _set_status("New empty project")
 
-func _write_project(path: String) -> void:
-    if not path.to_lower().ends_with(".json"): path += ".json"
-    var folder := path.get_basename() + "_assets"
-    if DirAccess.make_dir_recursive_absolute(folder) != OK:
-        _set_status("Could not create project asset folder")
-        return
-    var stored_background := ""
-    if not background_path.is_empty():
-        if not FileAccess.file_exists(background_path):
-            _set_status("Save stopped: missing scenery " + background_path)
-            return
-        stored_background = "scenery_" + background_path.get_file()
-        var bg_dest := folder.path_join(stored_background)
-        if background_path.simplify_path() != bg_dest.simplify_path():
-            if DirAccess.copy_absolute(background_path, bg_dest) != OK:
-                _set_status("Could not copy scenery")
-                return
-    var serialized: Array = objects.duplicate(true)
-    for i in range(serialized.size()):
-        var src := str(serialized[i].get("path", ""))
-        if src.is_empty(): continue
-        if not FileAccess.file_exists(src):
-            _set_status("Save stopped: missing image " + src)
-            return
-        var filename := "%03d_%s" % [i, src.get_file()]
-        var dest := folder.path_join(filename)
-        if src.simplify_path() != dest.simplify_path():
-            if DirAccess.copy_absolute(src, dest) != OK:
-                _set_status("Could not copy image: " + src)
-                return
-        serialized[i]["path"] = filename
-    var file := FileAccess.open(path, FileAccess.WRITE)
-    if file == null:
-        _set_status("Save failed: " + error_string(FileAccess.get_open_error()))
-        return
-    file.store_string(JSON.stringify({"format": PROJECT_FORMAT, "duration": duration, "objects": serialized, "background": stored_background}, "  "))
-    file.close()
-    project_path = path
-    _set_status("Saved project with copied assets: " + path)
+func _cancel_interaction() -> void:
+    path_mode = false
+    path_points.clear()
+    drag_transaction = false
+    stage.path_mode = false
+    stage.path_points = []
+    stage.dragging = false
 
-func _read_project(path: String) -> void:
-    var file := FileAccess.open(path, FileAccess.READ)
-    if file == null:
-        _set_status("Cannot open project")
-        return
-    var parsed = JSON.parse_string(file.get_as_text())
-    if not parsed is Dictionary or parsed.get("format", "") != PROJECT_FORMAT or not parsed.get("objects", null) is Array:
-        _set_status("Unsupported project format. This build uses v2 JSON.")
-        return
-    var loaded: Array = parsed["objects"]
-    var asset_folder := path.get_basename() + "_assets"
-    for item in loaded:
-        if not item is Dictionary:
-            _set_status("Invalid object entry")
-            return
-        var name := str(item.get("path", ""))
-        if not name.is_empty():
-            var asset_path := asset_folder.path_join(name)
-            if not FileAccess.file_exists(asset_path):
-                _set_status("Missing asset: " + asset_path)
-                return
-            item["path"] = asset_path
-    var bg_name := str(parsed.get("background", ""))
-    var loaded_background := ""
-    if not bg_name.is_empty():
-        loaded_background = asset_folder.path_join(bg_name)
-        if not FileAccess.file_exists(loaded_background):
-            _set_status("Missing scenery: " + loaded_background)
-            return
+func _write_project(path: String) -> bool:
+    var result: Dictionary = ProjectStorage.save_project(path, objects, duration, background_path)
+    if not result["ok"]:
+        _set_status(result["error"])
+        return false
+    project_path = result["path"]
+    _set_status("Saved portable project: " + project_path)
+    return true
+
+func _read_project(path: String) -> bool:
+    var result: Dictionary = ProjectStorage.load_project(path)
+    if not result["ok"]:
+        _set_status(result["error"])
+        return false
     _checkpoint()
-    background_path = loaded_background
-    stage.background_path = background_path
-    objects = loaded
+    _cancel_interaction()
+    background_path = result["background"]
+    objects = result["objects"]
     selected = -1
-    project_path = path
+    # Bundled samples are read-only templates, including in exported builds.
+    project_path = "" if path.begins_with("res://") else path
     playing = false
     refreshing = true
-    duration = clampf(float(parsed.get("duration", 12.0)), 1.0, 300.0)
+    duration = result["duration"]
     duration_input.value = duration
     timeline.max_value = duration
     refreshing = false
-    timeline.value = 0
+    timeline.set_value_no_signal(0.0)
+    _seek(0.0)
     stage.texture_cache.clear()
     _sync()
     _set_status("Opened portable project: " + path)
+    return true
 
 func _set_status(message: String) -> void:
     if status != null: status.text = "  " + message

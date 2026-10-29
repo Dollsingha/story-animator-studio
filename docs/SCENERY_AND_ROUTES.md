@@ -7,4 +7,4 @@
 - Route movement is a sequence of straight segments; it does not animate legs, wheels, water, or perspective.
 - Save project to copy background and object artwork into the adjacent `_assets` folder.
 - Try importing `examples/Village_Background.png` as scenery, then add your own character or shape and draw a route.
-- Godot runtime testing remains outstanding.
+- Runtime tested in Godot 4.7.2; see STABILIZATION_REPORT.md. Move the playhead before the timeline end before drawing a route.

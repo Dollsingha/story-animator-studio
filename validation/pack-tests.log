@@ -1,0 +1,49 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS: main scene initializes stage, inspector and timeline
+PASS: create and select shape
+PASS: keyframe position and rotation interpolation
+PASS: undo keyframe
+PASS: redo keyframe
+PASS: duplicate object
+PASS: reorder, visibility and lock
+PASS: delete object clears selection
+PASS: load puppet example
+PASS: bundled puppet is a writable-copy template
+PASS: puppet animation evaluates
+PASS: puppet texture: Torso
+PASS: puppet texture: Head
+PASS: puppet texture: Left Arm
+PASS: puppet texture: Right Arm
+PASS: puppet texture: Left Leg
+PASS: puppet texture: Right Leg
+PASS: wave and walk presets
+PASS: movement route creates keyframes
+PASS: route at end does not collapse keys
+PASS: load car, boat, passengers demo
+PASS: demo retains all objects
+PASS: scenery import texture
+PASS: save to Unicode path with spaces
+PASS: repeat save replaces existing JSON
+PASS: reopen portable project
+PASS: save reopened assets in place
+PASS: saving does not rewrite live asset paths
+PASS: Save As copies assets to a different directory
+PASS: scenery survives save and reopen
+PASS: malformed keys rejected without changing live scene
+PASS: circular parenting rejected
+PASS: external asset traversal rejected
+PASS: save reports missing source image
+PASS: failed save preserves old project JSON
+PASS: bundled resource writes rejected
+PASS: parent rotation and scale transform child
+PASS: world-to-local movement transform
+PASS: editor rejects cyclic attachment
+PASS: None attachment option detaches from object zero
+PASS: detaching preserves animation keys and keyed world pose
+PASS: reattach preserves keyed world position
+PASS: playback advances playhead
+PASS: stop resets playhead
+RESULT: 44 checks, 0 failures

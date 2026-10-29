@@ -1,17 +1,45 @@
-# Story Animator Studio — Scenery + Routes Alpha
+# Story Animator Studio — stabilized alpha
 
-**Unverified Godot 4 source project.** Not a commercial application or Windows installer.
+Offline-first 2D animation editor for Windows and Godot 4.7.2 Standard.
+No AI service, API key, account or internet is required at runtime.
 
-## New workflow
+Import project.godot in Godot 4.7.2 and press F5. Use Offline Demo, or open
+examples/Puppet_Demo.json. Scroll the toolbar and inspector on small windows.
 
-1. Open `project.godot` in Godot 4 Standard and run with F5.
-2. Click **Set Scenery**, choose your village/city image (or `examples/Village_Background.png`).
-3. Click **Import** to add a car, person, animal or boat image, or **+ Shape** to test.
-4. Select the moving object in the scene list, click **Draw Route**, click 2+ positions on the stage, then **Finish Route**.
-5. Press **Play**. Save to a `.json` project; the scenery and assets are copied alongside it.
+Preserved: imported artwork/scenery, shapes, keyframes, playback, pivots,
+parent attachments, visibility/lock, layering, duplicate/delete, undo/redo,
+Wave/Sway, Walk Path and manually drawn routes.
 
-See `docs/SCENERY_AND_ROUTES.md` and `docs/TEST_PLAN.md`. No AI or internet required for these features.
+## Saving
 
-## Important limits
+Save produces v2 JSON and a sibling <project>_assets directory. Move both
+together. Bundled samples open as templates; Save asks for an external path.
+Artwork is copied with content-derived names. JSON is flushed to a temporary
+file before replacement; failed asset copies preserve previous JSON.
+Unused copied assets are retained. Malformed projects are rejected before
+replacing the live document. See docs/STABILIZATION_REPORT.md for limits.
 
-This is source-only and has **not been run in Godot here**. Routes are linear position keyframes, not automatic road recognition, water interaction, wheel rotation or rigging. Image preparation is manual.
+## Tests
+
+Run tools/test.ps1 -Godot 'C:\path\Godot_v4.7.2-stable_win64_console.exe'.
+Or run Godot with --headless --path . --script res://tests/run_tests.gd.
+Tests create files in user://; use a disposable user-data folder for isolation.
+For rendered tests omit --headless and append -- --capture to save a preview.
+
+## Windows export
+
+Install matching 4.7.2.stable export templates in Godot's Export Template
+Manager (a local template archive can be installed offline). Then run:
+
+tools/export-windows.ps1 -Godot 'C:\path\Godot_v4.7.2-stable_win64_console.exe'
+
+The preset targets Windows x86_64. Distribute both build/StoryAnimatorStudio.exe
+and build/StoryAnimatorStudio.pck. Signing and installer creation are future
+release tasks. Export templates are not bundled with this source package.
+
+## Alpha limitations
+
+Routes use straight segments. Walk Path translates objects, not legs.
+Reparenting retains keyframe world poses; intermediate motion may change under
+an animated parent. Zero parent opacity cannot be inverted exactly.
+No automatic rigging, segmentation, smart seating or MP4 export is provided.

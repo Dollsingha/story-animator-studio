@@ -1,0 +1,184 @@
+{
+  "format": "story-animator-v2",
+  "duration": 8.0,
+  "objects": [
+    {
+      "name": "Torso",
+      "path": "torso.png",
+      "x": 480,
+      "y": 270,
+      "rotation": 0.0,
+      "scale": 1.0,
+      "opacity": 1.0,
+      "pivot_x": 0.0,
+      "pivot_y": 0,
+      "parent": -1,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Head",
+      "path": "head.png",
+      "x": 0,
+      "y": -106,
+      "rotation": 0.0,
+      "scale": 1.0,
+      "opacity": 1.0,
+      "pivot_x": 0.0,
+      "pivot_y": 0,
+      "parent": 0,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Left Arm",
+      "path": "left_arm.png",
+      "x": -66,
+      "y": -44,
+      "rotation": 0.0,
+      "scale": 1.0,
+      "opacity": 1.0,
+      "pivot_x": 0.0,
+      "pivot_y": -55,
+      "parent": 0,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": [
+        {
+          "time": 0,
+          "x": -66.0,
+          "y": -44.0,
+          "rotation": 0,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 1,
+          "x": -66.0,
+          "y": -44.0,
+          "rotation": -45,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 2,
+          "x": -66.0,
+          "y": -44.0,
+          "rotation": -80,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 3,
+          "x": -66.0,
+          "y": -44.0,
+          "rotation": -30,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 4,
+          "x": -66.0,
+          "y": -44.0,
+          "rotation": 0,
+          "scale": 1.0,
+          "opacity": 1.0
+        }
+      ]
+    },
+    {
+      "name": "Right Arm",
+      "path": "right_arm.png",
+      "x": 66,
+      "y": -44,
+      "rotation": 0.0,
+      "scale": 1.0,
+      "opacity": 1.0,
+      "pivot_x": 0.0,
+      "pivot_y": -55,
+      "parent": 0,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": [
+        {
+          "time": 0,
+          "x": 66.0,
+          "y": -44.0,
+          "rotation": 0,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 1,
+          "x": 66.0,
+          "y": -44.0,
+          "rotation": 20,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 2,
+          "x": 66.0,
+          "y": -44.0,
+          "rotation": 45,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 3,
+          "x": 66.0,
+          "y": -44.0,
+          "rotation": 10,
+          "scale": 1.0,
+          "opacity": 1.0
+        },
+        {
+          "time": 4,
+          "x": 66.0,
+          "y": -44.0,
+          "rotation": 0,
+          "scale": 1.0,
+          "opacity": 1.0
+        }
+      ]
+    },
+    {
+      "name": "Left Leg",
+      "path": "left_leg.png",
+      "x": -30,
+      "y": 73,
+      "rotation": 0.0,
+      "scale": 1.0,
+      "opacity": 1.0,
+      "pivot_x": 0.0,
+      "pivot_y": -65,
+      "parent": 0,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Right Leg",
+      "path": "right_leg.png",
+      "x": 30,
+      "y": 73,
+      "rotation": 0.0,
+      "scale": 1.0,
+      "opacity": 1.0,
+      "pivot_x": 0.0,
+      "pivot_y": -65,
+      "parent": 0,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    }
+  ]
+}

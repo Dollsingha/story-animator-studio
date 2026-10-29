@@ -1,0 +1,386 @@
+{
+  "format": "story-animator-v2",
+  "duration": 8.0,
+  "objects": [
+    {
+      "name": "Village / river / road background",
+      "path": "village.png",
+      "x": 480,
+      "y": 270,
+      "rotation": 0,
+      "scale": 1,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": -1,
+      "visible": true,
+      "locked": true,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Boat \u2014 move + rock",
+      "path": "boat.png",
+      "x": 135,
+      "y": 403,
+      "rotation": 0,
+      "scale": 1,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": -1,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": [
+        {
+          "time": 0,
+          "x": 135,
+          "y": 403,
+          "rotation": -3,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 2,
+          "x": 345,
+          "y": 401,
+          "rotation": 2,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 4,
+          "x": 570,
+          "y": 402,
+          "rotation": -3,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 6,
+          "x": 800,
+          "y": 404,
+          "rotation": 2,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 8,
+          "x": 800,
+          "y": 404,
+          "rotation": 2,
+          "scale": 1,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "name": "Boat passenger 1",
+      "path": "passenger_3.png",
+      "x": -45,
+      "y": -25,
+      "rotation": 0,
+      "scale": 0.9,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 1,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Boat passenger 2",
+      "path": "passenger_4.png",
+      "x": 5,
+      "y": -25,
+      "rotation": 0,
+      "scale": 0.9,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 1,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Car \u2014 parent + road path",
+      "path": "",
+      "x": 145,
+      "y": 484,
+      "rotation": 0,
+      "scale": 1,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": -1,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": [
+        {
+          "time": 0,
+          "x": 145,
+          "y": 484,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 1,
+          "x": 240,
+          "y": 484,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 3,
+          "x": 480,
+          "y": 484,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 5,
+          "x": 700,
+          "y": 484,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 7,
+          "x": 845,
+          "y": 484,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 8,
+          "x": 845,
+          "y": 484,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "name": "Car seat 1 / passenger",
+      "path": "passenger_1.png",
+      "x": -62,
+      "y": -25,
+      "rotation": 0,
+      "scale": 0.8,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 4,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Car seat 2 / passenger",
+      "path": "passenger_2.png",
+      "x": -18,
+      "y": -25,
+      "rotation": 0,
+      "scale": 0.8,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 4,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Car seat 3 / passenger",
+      "path": "passenger_3.png",
+      "x": 28,
+      "y": -25,
+      "rotation": 0,
+      "scale": 0.8,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 4,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Car seat 4 / passenger",
+      "path": "passenger_4.png",
+      "x": 68,
+      "y": -25,
+      "rotation": 0,
+      "scale": 0.8,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 4,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Car shell / transparent windows",
+      "path": "car_body.png",
+      "x": 0,
+      "y": -12,
+      "rotation": 0,
+      "scale": 1,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 4,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": []
+    },
+    {
+      "name": "Wheel 1 / offline rotation",
+      "path": "wheel.png",
+      "x": -70,
+      "y": 28,
+      "rotation": 0,
+      "scale": 0.8,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 4,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": [
+        {
+          "time": 0,
+          "x": -70,
+          "y": 28,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 1,
+          "x": -70,
+          "y": 28,
+          "rotation": 180,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 3,
+          "x": -70,
+          "y": 28,
+          "rotation": 540,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 5,
+          "x": -70,
+          "y": 28,
+          "rotation": 900,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 7,
+          "x": -70,
+          "y": 28,
+          "rotation": 1260,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 8,
+          "x": -70,
+          "y": 28,
+          "rotation": 1260,
+          "scale": 1,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "name": "Wheel 2 / offline rotation",
+      "path": "wheel.png",
+      "x": 71,
+      "y": 28,
+      "rotation": 0,
+      "scale": 0.8,
+      "opacity": 1,
+      "pivot_x": 0,
+      "pivot_y": 0,
+      "parent": 4,
+      "visible": true,
+      "locked": false,
+      "easing": "Smooth",
+      "keys": [
+        {
+          "time": 0,
+          "x": 71,
+          "y": 28,
+          "rotation": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 1,
+          "x": 71,
+          "y": 28,
+          "rotation": 180,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 3,
+          "x": 71,
+          "y": 28,
+          "rotation": 540,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 5,
+          "x": 71,
+          "y": 28,
+          "rotation": 900,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 7,
+          "x": 71,
+          "y": 28,
+          "rotation": 1260,
+          "scale": 1,
+          "opacity": 1
+        },
+        {
+          "time": 8,
+          "x": 71,
+          "y": 28,
+          "rotation": 1260,
+          "scale": 1,
+          "opacity": 1
+        }
+      ]
+    }
+  ]
+}

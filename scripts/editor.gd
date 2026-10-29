@@ -247,7 +247,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
             KEY_DELETE: _delete_object(); get_viewport().set_input_as_handled()
 
 func _snapshot() -> Dictionary:
-    return {"objects": objects.duplicate(true), "duration": duration, "selected": selected, "background_path": background_path}
+    return {"objects": objects.duplicate(true), "duration": duration, "selected": selected, "background_path": background_path, "project_path": project_path}
 
 func _checkpoint() -> void:
     undo_stack.append(_snapshot())
@@ -256,6 +256,8 @@ func _checkpoint() -> void:
 
 func _restore(snapshot: Dictionary) -> void:
     objects = snapshot["objects"].duplicate(true)
+    project_path = str(snapshot.get("project_path", ""))
+    playing = false
     background_path = str(snapshot.get("background_path", ""))
     stage.background_path = background_path
     selected = int(snapshot["selected"])
@@ -266,6 +268,7 @@ func _restore(snapshot: Dictionary) -> void:
     duration_input.value = duration
     timeline.max_value = duration
     refreshing = false
+    _seek(current_time)
     _sync()
     _select(selected)
 
@@ -288,6 +291,9 @@ func _load_offline_demo() -> void:
 func _import_image() -> void: import_dialog.popup_centered_ratio(0.75)
 func _import_background() -> void: background_dialog.popup_centered_ratio(0.75)
 func _background_selected(path: String) -> void:
+    if not ProjectStorage.image_asset(path)["ok"]:
+        _set_status("Cannot import scenery: invalid or unreadable image")
+        return
     _checkpoint()
     background_path = path
     stage.background_path = path
@@ -357,12 +363,16 @@ func _save_project() -> void:
 func _open_project() -> void: open_dialog.popup_centered_ratio(0.75)
 
 func _image_selected(path: String) -> void:
+    if not ProjectStorage.image_asset(path)["ok"]:
+        _set_status("Cannot import artwork: invalid or unreadable image")
+        return
     _add_object(path.get_file().get_basename(), path)
 
 func _add_shape() -> void:
     _add_object("Shape %d" % (objects.size() + 1), "")
 
 func _add_object(name: String, path: String) -> void:
+    _cancel_interaction()
     _checkpoint()
     objects.append({"name": name, "path": path, "x": 480.0, "y": 270.0, "rotation": 0.0, "scale": 1.0, "opacity": 1.0, "pivot_x": 0.0, "pivot_y": 0.0, "parent": -1, "visible": true, "locked": false, "easing": "Smooth", "keys": []})
     selected = objects.size() - 1
@@ -372,11 +382,22 @@ func _add_object(name: String, path: String) -> void:
 
 func _duplicate_object() -> void:
     if selected < 0: return
+    _cancel_interaction()
     _checkpoint()
     var copy: Dictionary = objects[selected].duplicate(true)
     copy["name"] = str(copy["name"]) + " Copy"
-    copy["x"] = float(copy["x"]) + 30.0
-    copy["y"] = float(copy["y"]) + 30.0
+    var base: Dictionary = stage.world_pose(selected, current_time)
+    for field in base: copy[field] = base[field]
+    copy["x"] = float(base["x"]) + 30.0
+    copy["y"] = float(base["y"]) + 30.0
+    var copied_keys: Array = []
+    for t in _world_sample_times(selected):
+        var pose: Dictionary = stage.world_pose(selected, float(t))
+        pose["time"] = t
+        pose["x"] = float(pose["x"]) + 30.0
+        pose["y"] = float(pose["y"]) + 30.0
+        copied_keys.append(pose)
+    copy["keys"] = copied_keys
     copy["parent"] = -1
     objects.append(copy)
     selected = objects.size() - 1
@@ -386,6 +407,9 @@ func _duplicate_object() -> void:
 func _delete_object() -> void:
     if selected < 0: return
     _checkpoint()
+    for i in range(objects.size()):
+        if int(objects[i].get("parent", -1)) == selected:
+            _reparent_object(i, -1)
     objects.remove_at(selected)
     for obj in objects:
         var p := int(obj.get("parent", -1))
@@ -402,6 +426,7 @@ func _reorder(direction: int) -> void:
     var dest: int = selected + direction
     if dest < 0 or dest >= objects.size(): return
     _checkpoint()
+    _cancel_interaction()
     var old: Array = objects.duplicate(true)
     objects[selected] = old[dest]
     objects[dest] = old[selected]
@@ -439,6 +464,7 @@ func _sync() -> void:
     _refresh_markers()
 
 func _select(index: int) -> void:
+    if path_mode and index != selected: _cancel_interaction()
     selected = index if index >= 0 and index < objects.size() else -1
     stage.selected = selected
     refreshing = true
@@ -490,27 +516,43 @@ func _change_parent(option: int) -> void:
         visited.append(p)
         p = int(objects[p].get("parent", -1))
     _checkpoint()
-    var obj: Dictionary = objects[selected]
-    var times: Array = []
-    for key in obj["keys"]:
-        if not times.has(float(key["time"])): times.append(float(key["time"]))
-    if not times.is_empty() and not times.has(current_time): times.append(current_time)
-    var world: Dictionary = stage.world_pose(selected, current_time)
-    var samples: Array = []
-    for t in times:
-        samples.append(stage.world_pose(selected, float(t)))
-    obj["parent"] = new_parent
-    var base := _relative_pose(selected, world, current_time)
-    for field in base: obj[field] = base[field]
-    var rebased: Array = []
-    for i in range(times.size()):
-        var pose := _relative_pose(selected, samples[i], float(times[i]))
-        pose["time"] = times[i]
-        rebased.append(pose)
-    obj["keys"] = rebased
+    _reparent_object(selected, new_parent)
     _sync()
     _select(selected)
     _set_status("Attachment updated; existing keyframe world poses preserved.")
+
+func _reparent_object(index: int, new_parent: int) -> void:
+    var obj: Dictionary = objects[index]
+    var times: Array = _world_sample_times(index)
+    if new_parent >= 0:
+        for t in _world_sample_times(new_parent):
+            if not times.has(t): times.append(t)
+    if not times.is_empty() and not times.has(current_time): times.append(current_time)
+    var world: Dictionary = stage.world_pose(index, current_time)
+    var samples: Array = []
+    for t in times:
+        samples.append(stage.world_pose(index, float(t)))
+    obj["parent"] = new_parent
+    var base := _relative_pose(index, world, current_time)
+    for field in base: obj[field] = base[field]
+    var rebased: Array = []
+    for i in range(times.size()):
+        var pose := _relative_pose(index, samples[i], float(times[i]))
+        pose["time"] = times[i]
+        rebased.append(pose)
+    obj["keys"] = rebased
+
+func _world_sample_times(index: int) -> Array:
+    var times: Array = []
+    var visited: Array = []
+    while index >= 0 and index < objects.size() and not visited.has(index):
+        visited.append(index)
+        for key in objects[index].get("keys", []):
+            var t := float(key["time"])
+            if not times.has(t): times.append(t)
+        index = int(objects[index].get("parent", -1))
+    times.sort()
+    return times
 
 func _relative_pose(index: int, world: Dictionary, t: float) -> Dictionary:
     var position := stage.to_local_position(index, Vector2(float(world["x"]), float(world["y"])), t)
@@ -592,6 +634,9 @@ func _refresh_markers() -> void:
 
 func _preset_wave() -> void:
     if selected < 0: return
+    if current_time >= duration:
+        _set_status("Move the playhead before the end to apply motion")
+        return
     _checkpoint()
     var obj: Dictionary = objects[selected]
     var base := stage.interpolated(obj, current_time)
@@ -608,6 +653,9 @@ func _preset_wave() -> void:
 
 func _preset_walk() -> void:
     if selected < 0: return
+    if current_time >= duration:
+        _set_status("Move the playhead before the end to apply motion")
+        return
     _checkpoint()
     var obj: Dictionary = objects[selected]
     var base := stage.interpolated(obj, current_time)
@@ -635,14 +683,19 @@ func _toggle_play() -> void:
     _set_status("Playing" if playing else "Paused")
 func _stop() -> void:
     playing = false
-    timeline.value = 0
+    _seek(0.0)
 func _set_duration(value: float) -> void:
     if refreshing: return
+    value = clampf(value, 1.0, 300.0)
+    if is_equal_approx(value, duration): return
+    _checkpoint()
     duration = value
     timeline.max_value = duration
     _seek(minf(current_time, duration))
 func _seek(value: float) -> void:
+    value = clampf(value, 0.0, duration)
     current_time = value
+    timeline.set_value_no_signal(value)
     stage.time_seconds = value
     time_label.text = "%.2f / %.2f s" % [value, duration]
     stage.queue_redraw()
@@ -651,8 +704,8 @@ func _process(delta: float) -> void:
     if playing:
         if current_time + delta >= duration:
             playing = false
-            timeline.value = duration
-        else: timeline.value = current_time + delta
+            _seek(duration)
+        else: _seek(current_time + delta)
 
 func _new_project() -> void:
     _checkpoint()

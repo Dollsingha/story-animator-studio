@@ -16,7 +16,7 @@ static func _asset_path(folder: String, filename: String) -> String:
     return folder.path_join(filename)
 
 static func _asset_exists(path: String) -> bool:
-    return FileAccess.file_exists(path) or (path.begins_with("res://") and ResourceLoader.exists(path))
+    return image_asset(path)["ok"]
 
 static func load_project(path: String) -> Dictionary:
     var file := FileAccess.open(path, FileAccess.READ)
@@ -79,21 +79,44 @@ static func load_project(path: String) -> Dictionary:
         return failure("Missing or invalid scenery: " + background)
     return {"ok": true, "objects": items, "duration": float(duration_value), "background": background_path}
 
-static func _copy_asset(source: String, folder: String) -> Dictionary:
-    var input := FileAccess.open(source, FileAccess.READ)
-    var bytes: PackedByteArray
-    var extension := source.get_extension().to_lower()
-    if input != null:
-        bytes = input.get_buffer(input.get_length())
-        input.close()
-    elif source.begins_with("res://") and ResourceLoader.exists(source):
-        # Exported textures may only exist as imported resources in the PCK.
+static func image_asset(source: String) -> Dictionary:
+    # Decode before accepting an image: existence alone permits corrupt projects.
+    if source.begins_with("res://") and ResourceLoader.exists(source):
         var texture: Resource = load(source)
-        if not texture is Texture2D: return failure("Invalid image: " + source)
-        bytes = texture.get_image().save_png_to_buffer()
-        extension = "png"
-    else:
-        return failure("Missing or unreadable image: " + source)
+        if texture is Texture2D:
+            var resource_image: Image = texture.get_image()
+            if resource_image != null and not resource_image.is_empty():
+                return {"ok": true, "bytes": resource_image.save_png_to_buffer(), "extension": "png"}
+        return failure("Invalid bundled image: " + source)
+    var input := FileAccess.open(source, FileAccess.READ)
+    if input == null: return failure("Missing or unreadable image: " + source)
+    var length := input.get_length()
+    var bytes := input.get_buffer(length)
+    var read_error := input.get_error()
+    input.close()
+    if bytes.size() != length or read_error != OK:
+        return failure("Image read failed: " + source)
+    var extension := source.get_extension().to_lower()
+    var image := Image.new()
+    var decode_error: Error = ERR_FILE_CORRUPT
+    match extension:
+        "png":
+            if bytes.size() >= 8 and bytes.slice(0, 8) == PackedByteArray([137, 80, 78, 71, 13, 10, 26, 10]):
+                decode_error = image.load_png_from_buffer(bytes)
+        "jpg", "jpeg":
+            if bytes.size() >= 3 and bytes[0] == 255 and bytes[1] == 216 and bytes[2] == 255:
+                decode_error = image.load_jpg_from_buffer(bytes)
+        "webp":
+            if bytes.size() >= 12 and bytes.slice(0, 4).get_string_from_ascii() == "RIFF" and bytes.slice(8, 12).get_string_from_ascii() == "WEBP":
+                decode_error = image.load_webp_from_buffer(bytes)
+    if decode_error != OK or image.is_empty(): return failure("Invalid or unsupported image: " + source)
+    return {"ok": true, "bytes": bytes, "extension": extension}
+
+static func _copy_asset(source: String, folder: String) -> Dictionary:
+    var asset := image_asset(source)
+    if not asset["ok"]: return asset
+    var bytes: PackedByteArray = asset["bytes"]
+    var extension: String = asset["extension"]
     var hash_context := HashingContext.new()
     hash_context.start(HashingContext.HASH_SHA256)
     hash_context.update(bytes)

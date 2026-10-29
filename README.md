@@ -22,7 +22,8 @@ replacing the live document. See docs/STABILIZATION_REPORT.md for limits.
 ## Tests
 
 Run tools/test.ps1 -Godot 'C:\path\Godot_v4.7.2-stable_win64_console.exe'.
-Or run Godot with --headless --path . --script res://tests/run_tests.gd.
+The runner executes both tests/run_tests.gd and tests/regressions.gd, and checks
+for script errors as well as successful suite completion.
 Tests create files in user://; use a disposable user-data folder for isolation.
 For rendered tests omit --headless and append -- --capture to save a preview.
 
@@ -43,3 +44,6 @@ Routes use straight segments. Walk Path translates objects, not legs.
 Reparenting retains keyframe world poses; intermediate motion may change under
 an animated parent. Zero parent opacity cannot be inverted exactly.
 No automatic rigging, segmentation, smart seating or MP4 export is provided.
+
+See docs/REVIEW_VALIDATION.md for the independent repository review, fixed
+regressions, executed checks and outstanding Windows release tests.
